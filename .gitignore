@@ -1,0 +1,14 @@
+# Python geçici dosyaları
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Yerel veri tabanı (Kullanıcı tarafından otomatik oluşturulur)
+rag.db
+
+# Streamlit yerel ayarları
+.streamlit/
+
+# Çevre değişkenleri
+.env

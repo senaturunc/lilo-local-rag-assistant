@@ -1,0 +1,8 @@
+Soru: Dersin hocası kimdir ve iletişim bilgisi nedir?
+Cevap: Dersin hocası Ahmet Yılmaz'dır ve e-posta adresi ahmet.yilmaz@universite.edu.tr'dir.
+
+Soru: Yapay zeka dersinde hangi programlama dili kullanılmaktadır?
+Cevap: Yapay zeka dersinde programlama dili olarak Python kullanılmaktadır.
+
+Soru: Dersin ofis saatleri ne zamandır?
+Cevap: Dersin ofis saatleri her hafta Çarşamba günü saat on üç ile on beş arasındadır.
