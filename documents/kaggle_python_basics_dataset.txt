@@ -1,0 +1,8 @@
+Soru: Python'da fonksiyon nasıl tanımlanır?
+Cevap: Python'da fonksiyonlar, "def" anahtar kelimesi kullanılarak ve ardından fonksiyon adı ile parantezler eklenerek tanımlanır.
+
+Soru: Python'da liste ve demet arasındaki fark nedir?
+Cevap: Listeler köşeli parantez kullanılarak tanımlanır ve değiştirilebilir yapıdadır. Demetler ise normal parantez kullanılarak tanımlanır ve oluşturulduktan sonra değiştirilemezler.
+
+Soru: Python'da sözlük yapısı nedir?
+Cevap: Sözlük, süslü parantezler kullanılarak oluşturulan ve verileri anahtar ile değer çiftleri şeklinde saklayan sırasız bir veri yapısıdır.
