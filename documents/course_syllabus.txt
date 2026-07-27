@@ -1,8 +1,0 @@
-Soru: Yapay zeka dersinin amacı nedir?
-Cevap: Dersin amacı, temel yapay zeka kavramlarını, makine öğrenmesi algoritmalarını ve derin öğrenme temellerini öğrencilere kazandırmaktır.
-
-Soru: Dersin haftalık içeriğinde neler var?
-Cevap: Haftalık içerikte arama algoritmaları, denetimli öğrenme, yapay sinir ağları ve doğal dil işleme konuları yer almaktadır.
-
-Soru: Dersin ön koşulları nelerdir?
-Cevap: Dersin ön koşulu olarak temel düzeyde Python programlama ve lineer cebir bilgisi aranmaktadır.

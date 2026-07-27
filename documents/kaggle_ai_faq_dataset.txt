@@ -1,0 +1,20 @@
+Soru: Yapay zeka nedir?
+Cevap: Yapay zeka, bilgisayarların insan zekasına benzer şekilde öğrenmesini, akıl yürütmesini ve problem çözmesini sağlayan bilgisayar bilimleri dalıdır.
+
+Soru: Makine öğrenmesi nedir?
+Cevap: Makine öğrenmesi, bilgisayarların verilerden öğrenerek deneyim kazanmasını ve açıkça programlanmadan kararlar vermesini sağlayan yapay zeka alt dalıdır.
+
+Soru: Derin öğrenme nedir?
+Cevap: Derin öğrenme, çok katmanlı yapay sinir ağlarını kullanarak büyük miktardaki karmaşık verilerden otomatik olarak özellikleri ve kalıpları öğrenen makine öğrenmesi tekniğidir.
+
+Soru: Denetimli ve denetimsiz öğrenme arasındaki fark nedir?
+Cevap: Denetimli öğrenme etiketli verilerle çalışırken, denetimsiz öğrenme etiketlenmemiş verilerdeki gizli örüntüleri bulmaya çalışır.
+
+Soru: Yapay sinir ağları nedir ve nasıl çalışır?
+Cevap: Yapay sinir ağları, insan beynindeki biyolojik nöronların yapısını taklit ederek katmanlar arası ağırlıklar yardımıyla verideki karmaşık desenleri öğrenen sistemlerdir.
+
+Soru: Doğal dil işleme nedir?
+Cevap: Doğal dil işleme, bilgisayarların insan dillerini anlamasını, yorumlamasını ve üretmesini sağlayan yapay zeka alanıdır.
+
+Soru: Bilgisayarlı görü nedir?
+Cevap: Bilgisayarlı görü, bilgisayarların dijital görüntülerden veya videolardan yüksek düzeyde anlam çıkarmasını sağlayan yapay zeka dalıdır.

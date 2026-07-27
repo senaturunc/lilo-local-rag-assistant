@@ -369,11 +369,11 @@ if len(active_chat["messages"]) == 0:
     user_query = None # Varsayılan olarak boş
     
     with col1:
-        if st.button("📝 Ders kuralları nelerdir?", use_container_width=True):
-            user_query = "Ders kuralları nelerdir?"
+        if st.button("📝 Makine öğrenmesi nedir?", use_container_width=True):
+            user_query = "Makine öğrenmesi nedir?"
     with col2:
-        if st.button("📅 Sınav takvimi ne zaman?", use_container_width=True):
-            user_query = "Sınav takvimi ne zaman?"
+        if st.button("🧠 Yapay sinir ağları nedir?", use_container_width=True):
+            user_query = "Yapay sinir ağları nedir ve nasıl çalışır?"
             
 else:
     # SOHBETTE MESAJ VARSA: Klasik başlığı ve mesaj geçmişini göster
