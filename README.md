@@ -51,7 +51,7 @@ Proje dört temel katmandan oluşmaktadır:
 
 ---
 
-## 📝 Tasarım ve NLP Kararları (Jüri Notları)
+## 📝 Tasarım ve NLP Kararları 
 
 * **Halüsinasyon Engelleme (Eşik Değeri):** Kosinüs benzerlik skoru `0.30`'un altında kalan sorularda model çalıştırılmaz; doğrudan *"Bu bilgiye sahip değilim (Belgelerde bulunamadı)"* güvenli yanıtı döner.
 * **Sayısal Kararlılık ve Model Optimizasyonu:** Türkçe dil yapısında Qwen modelinin sonsuz virgül ve rakam döngülerine girmesini engellemek için veri tabanındaki tarih ve sayılar yazıya dönüştürülmüştür. Modelin `frequency_penalty` parametresi `1.1` ve `temperature` parametresi `0.1` olarak set edilerek en kararlı cevap üretimi sağlanmıştır.
