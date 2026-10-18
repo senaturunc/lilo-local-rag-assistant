@@ -1,12 +1,33 @@
 import streamlit as st
-import math
 import os
+import re
 import time
+import datetime
 from foundry_local_sdk import FoundryLocalManager, Configuration
 from openai import OpenAI
 import database
-database.init_db()  # Veri tabanı tablosunu yoksa otomatik olarak oluşturur
-import main  # main.py içindeki cosine_similarity ve retrieve_context fonksiyonlarını kullanacağız
+import main  # retrieve_context(query, embedding_client, top_k) -> (context, score, source_files)
+from loaders import extract_text
+
+database.init_db()  # Tablo yoksa otomatik oluşturur
+
+SIMILARITY_THRESHOLD = 0.30
+
+
+# ==================================================
+# YARDIMCI FONKSİYONLAR
+# ==================================================
+def build_citation(source_files, score):
+    """Kaynak dosya adı ve ham benzerlik skorundan gösterilecek metni üretir."""
+    sources_str = ", ".join(source_files) if source_files else "Bilinmeyen kaynak"
+    filled = max(0, min(10, int(round(score * 10))))
+    bar = "█" * filled + "░" * (10 - filled)
+    return (
+        f"\n\n---\n"
+        f"**📄 Kaynak:** `{sources_str}`\n"
+        f"**🎯 Benzerlik skoru:** `{score:.2f}` | `{bar}`"
+    )
+
 
 # MODELLERİN HER SAYFA YENİLENDİĞİNDE TEKRAR YÜKLENMESİNİ ENGELLİYORUZ
 @st.cache_resource
@@ -17,56 +38,52 @@ def get_foundry_manager():
     manager.start_web_service()
     return manager
 
+
 @st.cache_resource
 def load_models():
     """Modelleri bir kez hafızaya yükler ve uygulamayı hızlandırır."""
     manager = get_foundry_manager()
     chat_model_id = "qwen2.5-1.5b-instruct-generic-cpu:4"
     embedding_model_id = "qwen3-embedding-0.6b-generic-cpu:1"
-    
-    # Sohbet modelini yükle
+
     chat_variant = manager.catalog.get_model_variant(chat_model_id)
     chat_variant.load()
-    
-    # Embedding modelini yükle
+
     embedding_variant = manager.catalog.get_model_variant(embedding_model_id)
     embedding_variant.load()
-    
+
     url = manager.urls[0]
     openai_client = OpenAI(base_url=url + "/v1", api_key="foundry")
     embedding_client = embedding_variant.get_embedding_client()
-    
+
     return openai_client, embedding_client, chat_model_id
 
-# Arayüz başlığını ve ikonunu ayarlıyoruz
+
+# ==================================================
+# SAYFA AYARLARI VE TASARIM
+# ==================================================
 st.set_page_config(page_title="Lilo - Yerel RAG Asistanı", page_icon="🤖")
 
-# PREMİUM GÖRSEL TASARIM (Açık Renkli Tema CSS Kodları)
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
-    
-    /* Global Font */
+
     html, body, [class*="css"], .stMarkdown {
         font-family: 'Outfit', sans-serif !important;
     }
-    
-    /* Main Background Gradient (Clean white to soft light indigo) */
+
     .stApp {
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e0e7ff 100%) !important;
     }
-    
-    /* Genel Yazı Renkleri (Gündüz Modu) */
+
     .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6, .stApp p, .stApp label, .stApp span, .stApp li {
         color: #0f172a !important;
     }
-    
-    /* Yan Menü (Sidebar) Yazı Renkleri */
+
     [data-testid="stSidebar"] * {
         color: #0f172a !important;
     }
-    
-    /* Sohbet Balonları (Gündüz Modu Soft Beyaz) */
+
     [data-testid="stChatMessage"] {
         background-color: rgba(255, 255, 255, 0.7) !important;
         border: 1px solid rgba(99, 102, 241, 0.15) !important;
@@ -77,8 +94,7 @@ st.markdown("""
     [data-testid="stChatMessage"] * {
         color: #0f172a !important;
     }
-    
-    /* Input Box styling */
+
     [data-testid="stChatInput"] {
         border-radius: 12px !important;
         border: 1px solid rgba(99, 102, 241, 0.2) !important;
@@ -88,8 +104,7 @@ st.markdown("""
     [data-testid="stChatInput"] textarea {
         color: #0f172a !important;
     }
-    
-    /* Button & Popover Button Styling */
+
     .stButton>button, div[data-testid="stPopover"]>button {
         border-radius: 12px !important;
         border: 1px solid rgba(99, 102, 241, 0.2) !important;
@@ -112,13 +127,11 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15) !important;
         transform: translateY(-2px);
     }
-    
-    /* Kolonları Dikeyde Tam Ortala */
+
     [data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] {
         align-items: center !important;
     }
-    
-    /* Sidebar Styling & Sağ Sınır Taşıma Koruması */
+
     [data-testid="stSidebar"] {
         background-color: #ffffff !important;
         border-right: 1px solid #e2e8f0 !important;
@@ -126,8 +139,7 @@ st.markdown("""
     [data-testid="stSidebar"] div[data-testid="stSidebarUserContent"] {
         padding-right: 20px !important;
     }
-    
-    /* Custom Styling for citations card */
+
     div.stMarkdown blockquote {
         background-color: rgba(99, 102, 241, 0.03) !important;
         border-left: 4px solid #4f46e5 !important;
@@ -137,7 +149,8 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-# Modelleri hafızaya yüklüyoruz ve köprülerimizi alıyoruz
+
+# Modelleri yükle
 try:
     openai_client, embedding_client, chat_model_id = load_models()
 except Exception as e:
@@ -147,124 +160,112 @@ except Exception as e:
 # ==================================================
 # 1. ÇOKLU SOHBET (SESSION STATE) ALTYAPISI
 # ==================================================
-# Eğer sohbet geçmişi hafızası yoksa ilk sohbet oturumunu oluşturuyoruz
 if "chats" not in st.session_state:
     st.session_state.chats = {
-        "chat_1": {
-            "title": "İlk Sohbet 💬",
-            "messages": []
-        }
+        "chat_1": {"title": "İlk Sohbet 💬", "messages": []}
     }
 if "active_chat_id" not in st.session_state:
     st.session_state.active_chat_id = "chat_1"
 
 # ==================================================
-# 2. SOL PANEL (SIDEBAR) TASARIMI
+# 2. SOL PANEL (SIDEBAR)
 # ==================================================
-# Lilo Logo (Maskot Görseli)
 if os.path.exists("lilo_logo.png"):
     st.sidebar.image("lilo_logo.png", use_container_width=True)
 else:
     st.sidebar.title("🤖 Lilo")
-st.sidebar.markdown("<div style='text-align: center; font-size: 1.25rem; font-weight: 600; color: #818cf8; margin-top: -10px; margin-bottom: 2px;'>Lilo</div>", unsafe_allow_html=True)
-st.sidebar.markdown("<div style='text-align: center; font-size: 0.75rem; color: #64748b; margin-bottom: 15px;'>Local Information Loop Optimizer</div>", unsafe_allow_html=True)
+st.sidebar.markdown(
+    "<div style='text-align: center; font-size: 1.25rem; font-weight: 600; color: #818cf8; "
+    "margin-top: -10px; margin-bottom: 2px;'>Lilo</div>",
+    unsafe_allow_html=True,
+)
+st.sidebar.markdown(
+    "<div style='text-align: center; font-size: 0.75rem; color: #64748b; margin-bottom: 15px;'>"
+    "Local Information Loop Optimizer</div>",
+    unsafe_allow_html=True,
+)
 
-# --- YENİ SOHBET BAŞLAT BUTONU ---
+# --- YENİ SOHBET ---
 if st.sidebar.button("➕ Yeni Sohbet Başlat", use_container_width=True):
-    # Benzersiz bir yeni sohbet ID'si oluşturuyoruz (timestamp bazlı)
     new_chat_id = f"chat_{int(time.time())}"
-    st.session_state.chats[new_chat_id] = {
-        "title": "Yeni Sohbet 💬",
-        "messages": []
-    }
+    st.session_state.chats[new_chat_id] = {"title": "Yeni Sohbet 💬", "messages": []}
     st.session_state.active_chat_id = new_chat_id
     st.rerun()
 
 st.sidebar.write("### 💬 Aktif Sohbetler")
 
-# --- SOHBET OTURUMLARINI LİSTELEME VE SİLME ---
+# --- SOHBET LİSTESİ VE YÖNETİMİ ---
 for chat_id, chat_data in list(st.session_state.chats.items()):
     col1, col2 = st.sidebar.columns([4.5, 1], gap="small")
-    
-    # Sohbet seçme butonu
+
     with col1:
-        # Eğer aktif sohbet bu ise butonu vurgulamak için küçük bir işaret koyalım
-        label = f"▶ {chat_data['title']}" if chat_id == st.session_state.active_chat_id else chat_data['title']
+        label = f"▶ {chat_data['title']}" if chat_id == st.session_state.active_chat_id else chat_data["title"]
         if st.button(label, key=f"select_{chat_id}", use_container_width=True):
             st.session_state.active_chat_id = chat_id
             st.rerun()
-            
-    # Sohbeti yönetme popover'ı
+
     with col2:
         with st.popover("⚙️", help="Sohbeti yönet"):
             st.markdown(f"💬 **Sohbet:** {chat_data['title']}")
             st.markdown(f"✉️ **Mesaj:** {len(chat_data['messages'])} adet")
-            
             st.divider()
-            
+
             if st.button("🗑️ Sohbeti Sil", key=f"del_chat_{chat_id}", use_container_width=True, type="primary"):
-                # Hafızadan sil
                 del st.session_state.chats[chat_id]
-                # Eğer silinen sohbet şu an açık olan sohbet ise, başka bir sohbete geç
                 if st.session_state.active_chat_id == chat_id:
                     if st.session_state.chats:
                         st.session_state.active_chat_id = list(st.session_state.chats.keys())[0]
                     else:
-                        # Tüm sohbetler silindiyse varsayılan yeni bir sohbet oluştur
                         st.session_state.chats = {"chat_1": {"title": "Yeni Sohbet 💬", "messages": []}}
                         st.session_state.active_chat_id = "chat_1"
                 st.sidebar.success("Sohbet silindi!")
                 time.sleep(0.5)
                 st.rerun()
 
-# --- SOHBETİ İNDİRME BUTONU ---
-# Eğer aktif sohbette mesaj varsa indirme butonunu gösteriyoruz
-if len(chat_data["messages"]) > 0:
-    # Sohbet geçmişini metin formatına çeviriyoruz
-    chat_text = f"--- {chat_data['title']} Sohbet Geçmişi ---\n\n"
-    for msg in chat_data["messages"]:
+# --- SOHBETİ İNDİRME (aktif sohbet) ---
+current_chat = st.session_state.chats[st.session_state.active_chat_id]
+if len(current_chat["messages"]) > 0:
+    chat_text = f"--- {current_chat['title']} Sohbet Geçmişi ---\n\n"
+    for msg in current_chat["messages"]:
         role_name = "Kullanıcı" if msg["role"] == "user" else "Lilo"
-        chat_text += f"{role_name}: {msg['content']}\n\n"
-        
+        chat_text += f"{role_name}: {msg['content']}{msg.get('citation', '')}\n\n"
+
     st.sidebar.download_button(
         label="📥 Sohbet Geçmişini İndir",
         data=chat_text,
-        file_name=f"{chat_data['title'].replace(' 💬', '')}_gecmisi.txt",
+        file_name=f"{current_chat['title'].replace(' 💬', '')}_gecmisi.txt",
         mime="text/plain",
         use_container_width=True,
-        help="Bu sohbetin geçmişini bilgisayarınıza kaydeder."
+        help="Bu sohbetin geçmişini bilgisayarınıza kaydeder.",
     )
 st.sidebar.divider()
 
-# --- WEB ÜZERİNDEN BELGE YÜKLEME ---
-st.sidebar.title("📂 Belge Yönetimi")
-uploaded_file = st.sidebar.file_uploader("Bir metin dosyası seçin (.txt)", type=["txt"])
+# --- BELGE YÜKLEME ---
+uploaded_file = st.sidebar.file_uploader(
+    "Bir belge seçin (.txt, .pdf, .docx)", type=["txt", "pdf", "docx"]
+)
 
 if uploaded_file is not None:
     if st.sidebar.button("Veri Tabanına Kaydet", use_container_width=True):
         with st.spinner("Belge işleniyor ve vektörler çıkarılıyor..."):
             try:
-                file_content = uploaded_file.read().decode("utf-8")
-                
-                from ingest import chunk_text
-                chunks = chunk_text(file_content)
-                
-                for i, chunk in enumerate(chunks):
-                    resp = embedding_client.generate_embedding(chunk)
-                    vector = resp.data[0].embedding
-                    database.save_chunk(uploaded_file.name, chunk, vector)
-                
+                from ingest import ingest_document
+
+                data = uploaded_file.getvalue()
+                text = extract_text(uploaded_file.name, data)
+                n = ingest_document(uploaded_file.name, text, embedding_client)
+
                 os.makedirs("documents", exist_ok=True)
-                with open(os.path.join("documents", uploaded_file.name), "w", encoding="utf-8") as f:
-                    f.write(file_content)
-                    
-                st.sidebar.success(f"Başarılı! '{uploaded_file.name}' belgesi eklendi.")
+                with open(os.path.join("documents", uploaded_file.name), "wb") as f:
+                    f.write(data)
+
+                st.sidebar.success(f"'{uploaded_file.name}' eklendi ({n} parça).")
                 time.sleep(1)
                 st.rerun()
             except Exception as e:
                 st.sidebar.error(f"Dosya yüklenirken hata oluştu: {e}")
 
-# --- YÜKLÜ BELGELERİ LİSTELEME VE SİLME ---
+# --- YÜKLÜ BELGELER ---
 st.sidebar.write("### 📄 Yüklü Belgeler")
 filenames = database.get_unique_filenames()
 
@@ -274,26 +275,22 @@ if filenames:
         with col1:
             st.write(f"📄 {fname}")
         with col2:
-            # ⚙️ Belge Yönetim Popover'ı (Açılır metin kutusu ve silme butonu)
             with st.popover("⚙️", help=f"'{fname}' belgesini yönet"):
                 filepath = os.path.join("documents", fname)
                 if os.path.exists(filepath):
                     try:
-                        with open(filepath, "r", encoding="utf-8") as f:
-                            st.text_area(f"📄 {fname} İçeriği", f.read(), height=250, disabled=True)
+                        with open(filepath, "rb") as f:
+                            preview = extract_text(fname, f.read())
+                        st.text_area(f"📄 {fname} İçeriği", preview, height=250, disabled=True)
                     except Exception as e:
                         st.error(f"Dosya okunamadı: {e}")
                 else:
                     st.error("Dosya bulunamadı.")
-                
-                st.divider() # Önizleme ile silme butonu arasına şık bir çizgi
-                
-                # Silme butonu popover'ın içinde duruyor
+
+                st.divider()
+
                 if st.button("🗑️ Belgeyi Sil", key=f"del_doc_{fname}", use_container_width=True, type="primary"):
-                    # Veri tabanından sil
                     database.delete_document(fname)
-                    # Klasörden de fiziksel olarak kaldır
-                    filepath = os.path.join("documents", fname)
                     if os.path.exists(filepath):
                         os.remove(filepath)
                     st.sidebar.success(f"'{fname}' silindi!")
@@ -302,181 +299,146 @@ if filenames:
 else:
     st.sidebar.info("Veri tabanında henüz belge yok.")
 
-
 # ==================================================
-# 3. ANA EKRAN TASARIMI VE SOHBET DÖNGÜSÜ
+# 3. ANA EKRAN VE SOHBET DÖNGÜSÜ
 # ==================================================
 active_chat = st.session_state.chats[st.session_state.active_chat_id]
+user_query = None
 
-# EĞER SOHBETTE HİÇ MESAJ YOKSA (BOŞ SOHBET)
 if len(active_chat["messages"]) == 0:
-    import datetime
-    # Sistem saatine göre selamlama mesajı ve emojiyi seçiyoruz
+    # BOŞ SOHBET: karşılama ekranı
     current_hour = datetime.datetime.now().hour
     if 5 <= current_hour < 12:
-        greeting_text = "Günaydın, Sena!"
-        greeting_emoji = "☀️"
+        greeting_text, greeting_emoji = "Günaydın, Sena!", "☀️"
     elif 12 <= current_hour < 17:
-        greeting_text = "Tünaydın, Sena!"
-        greeting_emoji = "🌤️"
+        greeting_text, greeting_emoji = "Tünaydın, Sena!", "🌤️"
     elif 17 <= current_hour < 22:
-        greeting_text = "İyi akşamlar, Sena!"
-        greeting_emoji = "🌙"
+        greeting_text, greeting_emoji = "İyi akşamlar, Sena!", "🌙"
     else:
-        greeting_text = "İyi geceler, Sena!"
-        greeting_emoji = "🌌"
-        
-    # Ekrana ortalanmış şık bir karşılama kartı (Glassmorphic Card)
+        greeting_text, greeting_emoji = "İyi geceler, Sena!", "🌌"
+
     st.write("\n\n")
     col_img1, col_img2, col_img3 = st.columns([2, 1, 2])
     with col_img2:
         if os.path.exists("lilo_logo.png"):
             st.image("lilo_logo.png", use_container_width=True)
-            
-    # Kart rengini ve yazı rengini açık temaya göre ayarlıyoruz
-    card_bg = "rgba(255, 255, 255, 0.75)"
-    card_border = "rgba(99, 102, 241, 0.15)"
-    card_shadow = "rgba(99, 102, 241, 0.05)"
-    text_gradient = "linear-gradient(90deg, #4f46e5 0%, #6366f1 100%)"
-    desc_color = "#475569"
-        
+
     st.markdown(f"""
         <div style='
-            background: {card_bg}; 
-            padding: 30px; 
-            border-radius: 16px; 
-            border: 1px solid {card_border}; 
-            backdrop-filter: blur(10px); 
+            background: rgba(255, 255, 255, 0.75);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            backdrop-filter: blur(10px);
             text-align: center;
-            box-shadow: 0 8px 32px {card_shadow};
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.05);
             margin-bottom: 25px;
         '>
             <h1 style='margin-bottom: 10px; font-size: 2.25rem; font-weight: 700;'>
                 <span style='
-                    background: {text_gradient};
+                    background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
-                '>{greeting_text}</span> 
+                '>{greeting_text}</span>
                 <span>{greeting_emoji}</span>
             </h1>
-            <p style='font-size: 1.1rem; color: {desc_color}; margin-bottom: 0px;'>Ben Lilo, yerel RAG asistanınız. Bugün size nasıl yardımcı olabilirim?</p>
+            <p style='font-size: 1.1rem; color: #475569; margin-bottom: 0px;'>
+                Ben Lilo, yerel RAG asistanınız. Bugün size nasıl yardımcı olabilirim?
+            </p>
         </div>
     """, unsafe_allow_html=True)
-    
-    # Hızlı soru kartları oluşturuyoruz (Kullanıcı bunlara tıklayarak doğrudan soru sorabilir)
+
     st.markdown("<p style='font-weight: bold; font-size: 1rem;'>💡 Örnek Sorular:</p>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
-    user_query = None # Varsayılan olarak boş
-    
     with col1:
         if st.button("📝 Makine öğrenmesi nedir?", use_container_width=True):
             user_query = "Makine öğrenmesi nedir?"
     with col2:
         if st.button("🧠 Yapay sinir ağları nedir?", use_container_width=True):
             user_query = "Yapay sinir ağları nedir ve nasıl çalışır?"
-            
 else:
-    # SOHBETTE MESAJ VARSA: Klasik başlığı ve mesaj geçmişini göster
+    # MESAJ VARSA: başlık ve geçmiş
     st.title(f"🤖 {active_chat['title']}")
     st.caption("Lilo - Yerel Çevrimdışı Kişisel Bilgi Bankası Asistanı")
-    
-    # Aktif sohbetin geçmiş mesajlarını ekrana çizdiriyoruz
+
     for message in active_chat["messages"]:
         with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-            
-    user_query = None
+            st.markdown(message["content"] + message.get("citation", ""))
 
-# Kullanıcıdan yeni soru alma kutusu (Eğer hızlı soru kartlarına basılmadıysa burayı dinler)
 chat_input_query = st.chat_input("Lilo'ya bir şey sorun...")
 if chat_input_query:
     user_query = chat_input_query
 
 if user_query:
-    # 1. Kullanıcının sorusunu hafızaya ekle ve ekrana çiz
+    # 1. Soruyu kaydet ve çiz
     active_chat["messages"].append({"role": "user", "content": user_query})
     with st.chat_message("user"):
         st.markdown(user_query)
-    
-    # Eğer sohbetin başlığı hala "Yeni Sohbet" ise, başlığı sorunun ilk kelimelerine göre otomatik güncelle
-    if active_chat["title"] in ["İlk Sohbet 💬", "Yeni Sohbet 💬"] or active_chat["title"].startswith("Yeni Sohbet"):
+
+    if active_chat["title"].startswith(("İlk Sohbet", "Yeni Sohbet")):
         short_title = user_query[:18] + "..." if len(user_query) > 18 else user_query
         active_chat["title"] = f"{short_title} 💬"
-    
-    # 2. Veri tabanında arama yap (RAG Aşaması)
+
+    # 2. Retrieval
     with st.spinner("Lilo araştırıyor..."):
         context, score, source_files = main.retrieve_context(user_query, embedding_client, top_k=1)
-        
-    # 3. Benzerlik skoruna göre karar veriyoruz (Eşik değerimiz: 0.30)
-    if score >= 0.30:
-        clean_context = context.replace('\r', '')
-        system_prompt = (
-            "Sen yardımcı bir asistansın. Aşağıdaki kaynak bilgide yer alan 'Cevap:' kısmını oku "
-            "ve soruyu oradaki ifadelere sadık kalarak, kelimeleri değiştirmeden doğrudan yanıtla.\n\n"
-            f"Kaynak Bilgi:\n{clean_context}"
+
+    # 3a. Eşik altı: bilgi yok (st.rerun() scripti burada sonlandırır)
+    if score < SIMILARITY_THRESHOLD:
+        active_chat["messages"].append(
+            {"role": "assistant", "content": "Bu bilgiye sahip değilim (Belgelerde bulunamadı)."}
         )
-        
-        # YAPAY ZEKAYA GERÇEK SOHBET GEÇMİŞİNİ (HAFIZAYI) GÖNDERİYORUZ
-        messages = [{"role": "system", "content": system_prompt}]
-        for msg in active_chat["messages"][:-1]:
-            messages.append({"role": msg["role"], "content": msg["content"]})
-        messages.append({"role": "user", "content": user_query})
-        
-        try:
-            # Cevabı canlı olarak yazdırmak için yer ayırtıyoruz (Streaming)
-            with st.chat_message("assistant"):
-                message_placeholder = st.empty()
-                full_response = ""
-                
-                # OpenAI modelinden akan veriyi (stream) başlatıyoruz
-                response_stream = openai_client.chat.completions.create(
-                    model=chat_model_id,
-                    messages=messages,
-                    max_tokens=200,
-                    temperature=0.1,
-                    frequency_penalty=1.1,
-                    stream=True  # Akışı aktif ediyoruz
-                )
-                
-                # Gelen her kelime parçasını ekrana ekliyoruz
-                for chunk in response_stream:
-                    if chunk.choices and len(chunk.choices) > 0:
-                        content_delta = chunk.choices[0].delta.content
-                        if content_delta:
-                            full_response += content_delta
-                            message_placeholder.markdown(full_response + "▌")
-                
-                # Kaynakları ve Güvenilirlik Çubuğunu hazırlıyoruz (Jüri dostu normalizasyon yapıyoruz)
-                sources_str = ", ".join(source_files) if source_files else "Bilinmeyen Kaynak"
-                
-                # Kosinüs benzerliğini 0.30 - 0.80 arasından 70% - 100% arasına kalibre ediyoruz
-                calibrated_percentage = int(((score - 0.30) / 0.50) * 30 + 70)
-                # 70% ile 100% arasında sınırlandırıyoruz
-                display_score = max(70, min(100, calibrated_percentage))
-                
-                # Bar uzunluğunu bu yeni skora göre hesaplıyoruz
-                bar_length = 10
-                filled_length = int(round(bar_length * (display_score / 100.0)))
-                bar = "█" * filled_length + "░" * (bar_length - filled_length)
-                
-                citation_md = (
-                    f"\n\n---\n"
-                    f"**📄 Kaynak:** `{sources_str}`\n"
-                    f"**🎯 Güven Oranı:** `% {display_score}` | `{bar}`"
-                )
-                
-                # Tam cevaba kaynağı ekliyoruz
-                final_answer = full_response + citation_md
-                
-                # İmleci kaldırıp nihai metni ve kaynağı basıyoruz
-                message_placeholder.markdown(final_answer)
-                
-            active_chat["messages"].append({"role": "assistant", "content": final_answer})
-            st.rerun()
-        except Exception as e:
-            st.error(f"Bir hata oluştu: {e}")
-    else:
-        # Bilgi bulunamadıysa doğrudan uyarı mesajını yazdır
-        answer = "Bu bilgiye sahip değilim (Belgelerde bulunamadı)."
-        active_chat["messages"].append({"role": "assistant", "content": answer})
         st.rerun()
+
+    clean_context = context.replace("\r", "")
+    citation = build_citation(source_files, score)
+
+    # 3b. Soru/Cevap formatlı belge: LLM'siz, cevabı olduğu gibi çıkar
+    if "Cevap:" in clean_context:
+        m = re.search(r"Cevap:\s*(.+)", clean_context, re.DOTALL)
+        answer = m.group(1).strip() if m else clean_context
+        active_chat["messages"].append(
+            {"role": "assistant", "content": answer, "citation": citation}
+        )
+        st.rerun()
+
+    # 3c. Ham belge: LLM sadece kaynaklara dayanarak cevaplasın
+    system_prompt = (
+        "You are a helpful assistant. Answer the question using ONLY the sources below. "
+        "If the answer is not in the sources, say you don't know. "
+        "Do not add information that is not in the sources. "
+        "Answer concisely, in Turkish.\n\n"
+        f"Sources:\n{clean_context}"
+    )
+
+    messages = [{"role": "system", "content": system_prompt}]
+    # Son 6 mesaj, kaynak/citation metni olmadan (küçük modelin bağlamını korumak için)
+    for msg in active_chat["messages"][:-1][-6:]:
+        messages.append({"role": msg["role"], "content": msg["content"]})
+    messages.append({"role": "user", "content": user_query})
+
+    try:
+        with st.chat_message("assistant"):
+            placeholder = st.empty()
+            full_response = ""
+
+            stream = openai_client.chat.completions.create(
+                model=chat_model_id,
+                messages=messages,
+                max_tokens=300,
+                temperature=0.1,
+                frequency_penalty=0.3,
+                stream=True,
+            )
+            for chunk in stream:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    full_response += chunk.choices[0].delta.content
+                    placeholder.markdown(full_response + "▌")
+            placeholder.markdown(full_response + citation)
+
+        active_chat["messages"].append(
+            {"role": "assistant", "content": full_response, "citation": citation}
+        )
+        st.rerun()
+    except Exception as e:
+        st.error(f"Bir hata oluştu: {e}")

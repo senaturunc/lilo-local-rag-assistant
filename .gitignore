@@ -12,3 +12,5 @@ rag.db
 
 # Çevre değişkenleri
 .env
+rag.db
+__pycache__/

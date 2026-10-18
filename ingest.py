@@ -1,40 +1,34 @@
 import os
-import re
 from foundry_local_sdk import FoundryLocalManager, Configuration
 import database
+from chunking import chunk_text
+from loaders import extract_text
 
-def chunk_text(text):
-    """Metni 'Soru:' ile başlayan bloklara göre ayırır.
-    Her blok, o soruya ait 'Cevap:' kısmıyla BİRLİKTE tek chunk olur."""
-    text = text.replace('\r\n', '\n')
-    
-    # "Soru:" kelimesinin göründüğü her yerden yeni bir blok başlat
-    # (?=Soru:) -> Soru: kelimesini blok içinde tutarak ondan önce böl
-    parts = re.split(r'(?=Soru:)', text)
-    
-    # Boş olmayan, temizlenmiş parçaları döndür
-    return [part.strip() for part in parts if part.strip()]
+SUPPORTED_EXTENSIONS = (".txt", ".pdf", ".docx")
+
+
+def ingest_document(filename, text, embedding_client):
+    """Bir belgeyi parçalar, vektörlerini çıkarır ve veri tabanına kaydeder.
+    Aynı isimli eski kayıtlar önce silinir. Kaydedilen chunk sayısını döndürür."""
+    database.delete_document(filename)
+    chunks = chunk_text(text)
+    for chunk in chunks:
+        resp = embedding_client.generate_embedding(chunk)
+        database.save_chunk(filename, chunk, resp.data[0].embedding)
+    return len(chunks)
+
 
 def main():
-    # Foundry Local yöneticisini başlatıyoruz
     config = Configuration(app_name="rag_assistant")
     manager = FoundryLocalManager(config)
     manager.start_web_service()
 
-    # Kullanacağımız yerel kelime vektörü (embedding) modeli
     embedding_model_id = "qwen3-embedding-0.6b-generic-cpu:1"
-    
     variant = manager.catalog.get_model_variant(embedding_model_id)
     if not variant.is_cached:
-        print(f"Embedding modeli ({embedding_model_id}) indiriliyor, lütfen bekleyin...")
-        # İndirme ilerlemesini ekrana yazdırıyoruz
-        variant.download(progress_callback=lambda p: print(f"İndirme İlerlemesi: {p:.1f}%", flush=True))
-        print("Embedding modeli başarıyla indirildi!")
-
-    print("Embedding modeli hafızaya yükleniyor...")
+        print(f"Embedding modeli ({embedding_model_id}) indiriliyor...")
+        variant.download(progress_callback=lambda p: print(f"İndirme: {p:.1f}%", flush=True))
     variant.load()
-    print("Model hazır!")
-
     client = variant.get_embedding_client()
 
     docs_dir = "documents"
@@ -42,32 +36,20 @@ def main():
         print(f"Hata: {docs_dir} klasörü bulunamadı.")
         return
 
-    print("\nBelgeler taranıyor ve veri tabanına kaydediliyor...")
-    
-    # Klasördeki tüm dosyaları oku
     for filename in os.listdir(docs_dir):
-        if filename.endswith(".txt"):
-            filepath = os.path.join(docs_dir, filename)
-            print(f"\nİşlenen dosya: {filename}")
-            
-            with open(filepath, "r", encoding="utf-8") as f:
-                text = f.read()
-            
-            # Dosya içeriğini küçük parçalara ayır
-            chunks = chunk_text(text)
-            print(f"Toplam {len(chunks)} parçaya ayrıldı.")
-            
-            for i, chunk in enumerate(chunks):
-                print(f"  Parça {i+1} için vektör oluşturuluyor...")
-                # Yerel model ile metin parçasının vektörünü (embedding) hesapla
-                resp = client.generate_embedding(chunk)
-                vector = resp.data[0].embedding
-                
-                # Veri tabanına kaydet
-                database.save_chunk(filename, chunk, vector)
-                print(f"  Parça {i+1} veri tabanına kaydedildi.")
+        if not filename.lower().endswith(SUPPORTED_EXTENSIONS):
+            continue
+        print(f"İşleniyor: {filename}")
+        try:
+            with open(os.path.join(docs_dir, filename), "rb") as f:
+                text = extract_text(filename, f.read())
+            n = ingest_document(filename, text, client)
+            print(f"  -> {n} parça kaydedildi.")
+        except Exception as e:
+            print(f"  -> HATA: {e}")
 
-    print("\nTüm belgeler başarıyla işlendi ve veri tabanına kaydedildi!")
+    print("Tamamlandı.")
+
 
 if __name__ == "__main__":
     main()
