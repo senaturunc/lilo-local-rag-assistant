@@ -14,3 +14,6 @@ rag.db
 .env
 rag.db
 __pycache__/
+rag.db
+__pycache__/
+eval/pdf_text.txt

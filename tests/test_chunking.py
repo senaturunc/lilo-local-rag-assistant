@@ -1,6 +1,5 @@
 from chunking import chunk_text, chunk_general, is_qa_format
 
-
 def test_qa_format_keeps_question_and_answer_together():
     text = "Soru: A nedir?\n\nCevap: A budur.\n\n\nSoru: B nedir?\n\nCevap: B şudur."
     chunks = chunk_text(text)

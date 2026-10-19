@@ -402,6 +402,8 @@ if user_query:
         )
         st.rerun()
 
+    print(f"\n[DEBUG] skor={score:.3f}\n{clean_context}\n{'-'*40}")
+
     # 3c. Ham belge: LLM sadece kaynaklara dayanarak cevaplasın
     system_prompt = (
         "You are a helpful assistant. Answer the question using ONLY the sources below. "
@@ -425,9 +427,9 @@ if user_query:
             stream = openai_client.chat.completions.create(
                 model=chat_model_id,
                 messages=messages,
-                max_tokens=300,
-                temperature=0.1,
-                frequency_penalty=0.3,
+                max_tokens=250,
+                temperature=0.2,
+                frequency_penalty=0.8,
                 stream=True,
             )
             for chunk in stream:
