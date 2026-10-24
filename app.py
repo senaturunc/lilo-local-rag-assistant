@@ -6,12 +6,14 @@ import datetime
 from foundry_local_sdk import FoundryLocalManager, Configuration
 from openai import OpenAI
 import database
-import main  # retrieve_context(query, embedding_client, top_k) -> (context, score, source_files)
+import main  # retrieve_chunks(query, embedding_client, top_k) -> [{"score","content","filename"}, ...]
 from loaders import extract_text
 
 database.init_db()  # Tablo yoksa otomatik oluşturur
 
-SIMILARITY_THRESHOLD = 0.30
+# Eşik değerlendirme verisiyle seçildi (talimatlı sorgu): konu dışı sorular <= 0.41, cevaplılar >= 0.48
+SIMILARITY_THRESHOLD = 0.45
+TOP_K = 3
 
 
 # ==================================================
@@ -27,6 +29,68 @@ def build_citation(source_files, score):
         f"**📄 Kaynak:** `{sources_str}`\n"
         f"**🎯 Benzerlik skoru:** `{score:.2f}` | `{bar}`"
     )
+
+
+def is_looping(text, window=30, min_repeats=3):
+    """Metnin son parçası, metin içinde birkaç kez tekrar ediyorsa True döner."""
+    if len(text) < window * min_repeats:
+        return False
+    return text.count(text[-window:]) >= min_repeats
+
+
+def trim_answer(text, max_sentences=2):
+    """Cevabı en fazla max_sentences tam cümleyle sınırlar, yarım kalan cümleyi atar."""
+    text = text.strip()
+    parts = re.split(r"(?<=[.!?])\s+", text)
+    out = " ".join(parts[:max_sentences]).strip()
+    if out and out[-1] not in ".!?…":
+        cut = max(out.rfind("."), out.rfind("!"), out.rfind("?"))
+        if cut > 0:
+            out = out[:cut + 1]
+    return out or text
+
+
+def best_sentences(query, results, embedding_client, n=2, max_candidates=36):
+    """Getirilen chunk'lardan sorguya en yakın n cümleyi belgeden aynen seçer."""
+    per_chunk = []
+    for r in results:
+        sents = []
+        for s in re.split(r"(?<=[.!?])\s+", r["content"].replace("\r", "")):
+            s = re.sub(r"https?://\S+|www\.\S+", "", s)
+            s = re.sub(r"\s+", " ", s).strip()
+            if len(s) >= 30:
+                sents.append(s)
+        per_chunk.append(sents)
+
+    # Chunk'lar arasında dönüşümlü seç, hiçbirinin cümleleri tamamen dışarıda kalmasın
+    candidates, i = [], 0
+    while len(candidates) < max_candidates and any(i < len(c) for c in per_chunk):
+        for c in per_chunk:
+            if i < len(c):
+                candidates.append(c[i])
+        i += 1
+    candidates = candidates[:max_candidates]
+    if not candidates:
+        return []
+
+    q_vec = embedding_client.generate_embedding(main.QUERY_INSTRUCT + query).data[0].embedding
+    scored = []
+    for s in candidates:
+        v = embedding_client.generate_embedding(s).data[0].embedding
+        scored.append((main.cosine_similarity(q_vec, v), s))
+    scored.sort(key=lambda x: -x[0])
+    return [s for _, s in scored[:n]]
+
+
+def render_sources(sources):
+    """Kullanılan kaynak parçaları açılır kutuda gösterir."""
+    if not sources:
+        return
+    with st.expander("🔍 Kullanılan kaynak parçalar"):
+        for i, s in enumerate(sources, 1):
+            st.markdown(f"**{i}. {s['filename']}**  (benzerlik: `{s['score']:.2f}`)")
+            snippet = s["content"][:600] + ("…" if len(s["content"]) > 600 else "")
+            st.caption(snippet)
 
 
 # MODELLERİN HER SAYFA YENİLENDİĞİNDE TEKRAR YÜKLENMESİNİ ENGELLİYORUZ
@@ -240,6 +304,19 @@ if len(current_chat["messages"]) > 0:
     )
 st.sidebar.divider()
 
+# --- GÖRÜNÜM SEÇENEKLERİ (varsayılan: kapalı, eski düzen) ---
+quote_only = st.sidebar.checkbox(
+    "📄 Sadece belgeden alıntı göster (LLM'siz)",
+    value=False,
+    help="Açıkken cevap yazılmaz, belgeden en ilgili cümleler aynen gösterilir.",
+)
+show_sources = st.sidebar.checkbox(
+    "🔍 Kaynak parçaları göster",
+    value=False,
+    help="Cevabın altında kullanılan belge parçalarını açılır kutuda gösterir.",
+)
+st.sidebar.divider()
+
 # --- BELGE YÜKLEME ---
 uploaded_file = st.sidebar.file_uploader(
     "Bir belge seçin (.txt, .pdf, .docx)", type=["txt", "pdf", "docx"]
@@ -351,11 +428,11 @@ if len(active_chat["messages"]) == 0:
     st.markdown("<p style='font-weight: bold; font-size: 1rem;'>💡 Örnek Sorular:</p>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("📝 Makine öğrenmesi nedir?", use_container_width=True):
-            user_query = "Makine öğrenmesi nedir?"
+        if st.button("📝 Dijital imza nedir?", use_container_width=True):
+            user_query = "Dijital imza nedir?"
     with col2:
-        if st.button("🧠 Yapay sinir ağları nedir?", use_container_width=True):
-            user_query = "Yapay sinir ağları nedir ve nasıl çalışır?"
+        if st.button("🔑 Açık anahtarlı şifreleme nasıl çalışır?", use_container_width=True):
+            user_query = "Açık anahtarlı şifreleme nasıl çalışır?"
 else:
     # MESAJ VARSA: başlık ve geçmiş
     st.title(f"🤖 {active_chat['title']}")
@@ -364,6 +441,8 @@ else:
     for message in active_chat["messages"]:
         with st.chat_message(message["role"]):
             st.markdown(message["content"] + message.get("citation", ""))
+            if show_sources:
+                render_sources(message.get("sources"))
 
 chat_input_query = st.chat_input("Lilo'ya bir şey sorun...")
 if chat_input_query:
@@ -379,45 +458,76 @@ if user_query:
         short_title = user_query[:18] + "..." if len(user_query) > 18 else user_query
         active_chat["title"] = f"{short_title} 💬"
 
-    # 2. Retrieval
+    # 2. Retrieval (talimatlı sorgu, top-3)
     with st.spinner("Lilo araştırıyor..."):
-        context, score, source_files = main.retrieve_context(user_query, embedding_client, top_k=1)
+        results = main.retrieve_chunks(user_query, embedding_client, top_k=TOP_K)
+
+    best_score = results[0]["score"] if results else 0.0
 
     # 3a. Eşik altı: bilgi yok (st.rerun() scripti burada sonlandırır)
-    if score < SIMILARITY_THRESHOLD:
+    if best_score < SIMILARITY_THRESHOLD:
         active_chat["messages"].append(
             {"role": "assistant", "content": "Bu bilgiye sahip değilim (Belgelerde bulunamadı)."}
         )
         st.rerun()
 
-    clean_context = context.replace("\r", "")
-    citation = build_citation(source_files, score)
+    # Eşiği geçen parçalar
+    good = [r for r in results if r["score"] >= SIMILARITY_THRESHOLD]
+    source_files = sorted({r["filename"] for r in good})
+    citation = build_citation(source_files, best_score)
+    sources = [
+        {"filename": r["filename"], "score": r["score"], "content": r["content"]}
+        for r in good
+    ]
+
+    top_content = good[0]["content"].replace("\r", "")
 
     # 3b. Soru/Cevap formatlı belge: LLM'siz, cevabı olduğu gibi çıkar
-    if "Cevap:" in clean_context:
-        m = re.search(r"Cevap:\s*(.+)", clean_context, re.DOTALL)
-        answer = m.group(1).strip() if m else clean_context
+    if "Cevap:" in top_content:
+        m = re.search(r"Cevap:\s*(.+)", top_content, re.DOTALL)
+        answer = m.group(1).strip() if m else top_content
         active_chat["messages"].append(
-            {"role": "assistant", "content": answer, "citation": citation}
+            {"role": "assistant", "content": answer, "citation": citation, "sources": sources}
         )
         st.rerun()
 
-    print(f"\n[DEBUG] skor={score:.3f}\n{clean_context}\n{'-'*40}")
+    # 3c. Chunk'lardan en ilgili cümleleri seç (hem alıntı modu hem LLM bunu kullanır)
+    with st.spinner("En ilgili ifadeler seçiliyor..."):
+        picked = best_sentences(user_query, good, embedding_client, n=3)
 
-    # 3c. Ham belge: LLM sadece kaynaklara dayanarak cevaplasın
+    # Alıntı modu (LLM'siz)
+    if quote_only:
+        if picked:
+            answer = "**Belgelerden en ilgili ifadeler:**\n\n" + "\n\n".join(f"> {s}" for s in picked[:2])
+        else:
+            answer = "Bu bilgiye sahip değilim (Belgelerde bulunamadı)."
+        active_chat["messages"].append(
+            {"role": "assistant", "content": answer, "citation": citation, "sources": sources}
+        )
+        st.rerun()
+
+    # 3d. Varsayılan: LLM, seçilen ilgili cümlelere dayanarak kısa cevap yazar
+    evidence = "\n".join(f"- {s}" for s in picked) if picked else top_content[:600]
+
     system_prompt = (
-        "You are a helpful assistant. Answer the question using ONLY the sources below. "
-        "If the answer is not in the sources, say you don't know. "
-        "Do not add information that is not in the sources. "
-        "Answer concisely, in Turkish.\n\n"
-        f"Sources:\n{clean_context}"
+        "You are a question answering assistant. "
+        "Answer the question using only the evidence sentences. "
+        "Write the answer in Turkish, in one or two short sentences, stating the answer directly. "
+        "Do not copy unrelated parts of the evidence and do not add outside information."
     )
+    example_user = (
+        "Evidence:\n- Dijital imza, dijital belgeleri kriptografik olarak imzalama teknolojisinin ismidir.\n"
+        "- Bu hash değerini özel anahtarla şifreler.\n\n"
+        "Question: Dijital imza nedir?"
+    )
+    example_answer = "Dijital imza, dijital belgeleri kriptografik olarak imzalama teknolojisidir."
 
-    messages = [{"role": "system", "content": system_prompt}]
-    # Son 6 mesaj, kaynak/citation metni olmadan (küçük modelin bağlamını korumak için)
-    for msg in active_chat["messages"][:-1][-6:]:
-        messages.append({"role": msg["role"], "content": msg["content"]})
-    messages.append({"role": "user", "content": user_query})
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": example_user},
+        {"role": "assistant", "content": example_answer},
+        {"role": "user", "content": f"Evidence:\n{evidence}\n\nQuestion: {user_query}"},
+    ]
 
     try:
         with st.chat_message("assistant"):
@@ -427,19 +537,24 @@ if user_query:
             stream = openai_client.chat.completions.create(
                 model=chat_model_id,
                 messages=messages,
-                max_tokens=250,
-                temperature=0.2,
-                frequency_penalty=0.8,
+                max_tokens=120,
+                temperature=0.1,
                 stream=True,
             )
             for chunk in stream:
                 if chunk.choices and chunk.choices[0].delta.content:
                     full_response += chunk.choices[0].delta.content
+                    if is_looping(full_response):
+                        cut = full_response.find(full_response[-30:])
+                        full_response = full_response[:cut].rstrip(" ,;") + " …"
+                        break
                     placeholder.markdown(full_response + "▌")
-            placeholder.markdown(full_response + citation)
+
+            final_text = trim_answer(full_response, max_sentences=2)
+            placeholder.markdown(final_text + citation)
 
         active_chat["messages"].append(
-            {"role": "assistant", "content": full_response, "citation": citation}
+            {"role": "assistant", "content": final_text, "citation": citation, "sources": sources}
         )
         st.rerun()
     except Exception as e:

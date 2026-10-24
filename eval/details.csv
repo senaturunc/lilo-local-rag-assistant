@@ -1,0 +1,199 @@
+﻿chunk_size,talimat,tip,soru,dogru_chunk_sirasi,top1_skor
+400,hayır,dogrudan,Kriptografi nedir?,2,0.632
+400,hayır,dogrudan,Bilgi güvenliğinde gizlilik ne demektir?,1,0.651
+400,hayır,parafraz,Gönderen taraf mesajı gönderdiğini sonradan yok sayamasın diye hangi güvenlik kavramı kullanılır?,1,0.562
+400,hayır,dogrudan,Vigenère'in kitabında ilk kez hangi yöntemden söz edildi?,1,0.686
+400,hayır,parafraz,Sezar'ın kullandığı yöntemde harfler nasıl değiştiriliyordu?,1,0.489
+400,hayır,parafraz,İkinci Dünya Savaşı'nda Almanların kullandığı şifreleme makinesini kim çözdü?,3,0.611
+400,hayır,dogrudan,RSA algoritmasını kimler buldu?,1,0.704
+400,hayır,parafraz,NIST'in simetrik algoritma yarışmasını hangi algoritma kazandı?,1,0.731
+400,hayır,dogrudan,Açık anahtar sistemini anlatan makaleyi kimler yayınladı?,2,0.438
+400,hayır,parafraz,Kriptografi bilgi saklamanın dışında hangi alanlarda kullanılır?,2,0.571
+400,hayır,parafraz,Mükemmel kabul edilen tek kullanımlık şifreleme sistemini kimler tasarladı?,1,0.596
+400,hayır,dogrudan,DES'in temelini oluşturan algoritma hangisidir?,3,0.542
+400,hayır,dogrudan,Dijital imza nedir?,1,0.660
+400,hayır,parafraz,Türk mevzuatında dijital imza hangi adla geçer?,3,0.633
+400,hayır,parafraz,Bir dosyada küçücük bir değişiklik yapılırsa özet değerine ne olur?,2,0.461
+400,hayır,dogrudan,Dijital imzada hash değeri hangi anahtarla şifrelenir?,2,0.803
+400,hayır,parafraz,İmzanın geçerli olduğunu doğrulayan kişi hangi karşılaştırmayı yapar?,5,0.401
+400,hayır,parafraz,Çok büyük bir video dosyasının özet değeri ne kadar uzun olur?,1,0.474
+400,hayır,dogrudan,secp256r1 eğrisi ve sha-256 ile çalışan imza algoritmasının adı nedir?,1,0.799
+400,hayır,parafraz,İmzalı belgenin içeriği değiştirilirse imzaya ne olur?,1,0.523
+400,hayır,dogrudan,Açık anahtarlı kriptografide anahtar çifti nelerden oluşur?,2,0.732
+400,hayır,dogrudan,Gönderici mesajı şifrelemek için hangi anahtarı kullanır?,1,0.647
+400,hayır,parafraz,Şifrelenmiş mesajı kim açabilir?,1,0.592
+400,hayır,parafraz,Açık anahtarlı kriptografi anahtar paylaşımında hangi gereksinimi ortadan kaldırır?,1,0.697
+400,hayır,parafraz,Dijital imzalar hangi güvenlik özelliklerini sağlar?,5,0.619
+400,hayır,parafraz,Açık anahtarlı sistemler büyük ağlarda neden tercih edilir?,2,0.500
+400,hayır,parafraz,Açık ve özel anahtar birbirinden hesaplanabilir mi?,2,0.589
+400,hayır,cevapsiz,Python'da liste nasıl sıralanır?,,0.291
+400,hayır,cevapsiz,Türkiye'nin başkenti neresidir?,,0.285
+400,hayır,cevapsiz,Makine öğrenmesinde aşırı öğrenme nedir?,,0.390
+400,hayır,cevapsiz_konu_ici,AES şifrelemesi kaç turdan oluşur?,,0.565
+400,hayır,cevapsiz_konu_ici,RSA anahtarı kaç bit uzunluğunda olmalıdır?,,0.617
+400,hayır,cevapsiz_konu_ici,Diffie-Hellman anahtar değişimi adım adım nasıl yapılır?,,0.592
+400,evet,dogrudan,Kriptografi nedir?,1,0.717
+400,evet,dogrudan,Bilgi güvenliğinde gizlilik ne demektir?,1,0.731
+400,evet,parafraz,Gönderen taraf mesajı gönderdiğini sonradan yok sayamasın diye hangi güvenlik kavramı kullanılır?,1,0.644
+400,evet,dogrudan,Vigenère'in kitabında ilk kez hangi yöntemden söz edildi?,1,0.816
+400,evet,parafraz,Sezar'ın kullandığı yöntemde harfler nasıl değiştiriliyordu?,1,0.569
+400,evet,parafraz,İkinci Dünya Savaşı'nda Almanların kullandığı şifreleme makinesini kim çözdü?,2,0.677
+400,evet,dogrudan,RSA algoritmasını kimler buldu?,1,0.798
+400,evet,parafraz,NIST'in simetrik algoritma yarışmasını hangi algoritma kazandı?,1,0.768
+400,evet,dogrudan,Açık anahtar sistemini anlatan makaleyi kimler yayınladı?,2,0.622
+400,evet,parafraz,Kriptografi bilgi saklamanın dışında hangi alanlarda kullanılır?,4,0.693
+400,evet,parafraz,Mükemmel kabul edilen tek kullanımlık şifreleme sistemini kimler tasarladı?,1,0.729
+400,evet,dogrudan,DES'in temelini oluşturan algoritma hangisidir?,2,0.673
+400,evet,dogrudan,Dijital imza nedir?,1,0.682
+400,evet,parafraz,Türk mevzuatında dijital imza hangi adla geçer?,3,0.676
+400,evet,parafraz,Bir dosyada küçücük bir değişiklik yapılırsa özet değerine ne olur?,1,0.541
+400,evet,dogrudan,Dijital imzada hash değeri hangi anahtarla şifrelenir?,2,0.823
+400,evet,parafraz,İmzanın geçerli olduğunu doğrulayan kişi hangi karşılaştırmayı yapar?,5,0.500
+400,evet,parafraz,Çok büyük bir video dosyasının özet değeri ne kadar uzun olur?,1,0.631
+400,evet,dogrudan,secp256r1 eğrisi ve sha-256 ile çalışan imza algoritmasının adı nedir?,1,0.781
+400,evet,parafraz,İmzalı belgenin içeriği değiştirilirse imzaya ne olur?,1,0.608
+400,evet,dogrudan,Açık anahtarlı kriptografide anahtar çifti nelerden oluşur?,1,0.814
+400,evet,dogrudan,Gönderici mesajı şifrelemek için hangi anahtarı kullanır?,1,0.715
+400,evet,parafraz,Şifrelenmiş mesajı kim açabilir?,1,0.625
+400,evet,parafraz,Açık anahtarlı kriptografi anahtar paylaşımında hangi gereksinimi ortadan kaldırır?,2,0.796
+400,evet,parafraz,Dijital imzalar hangi güvenlik özelliklerini sağlar?,6,0.670
+400,evet,parafraz,Açık anahtarlı sistemler büyük ağlarda neden tercih edilir?,6,0.639
+400,evet,parafraz,Açık ve özel anahtar birbirinden hesaplanabilir mi?,3,0.712
+400,evet,cevapsiz,Python'da liste nasıl sıralanır?,,0.352
+400,evet,cevapsiz,Türkiye'nin başkenti neresidir?,,0.446
+400,evet,cevapsiz,Makine öğrenmesinde aşırı öğrenme nedir?,,0.461
+400,evet,cevapsiz_konu_ici,AES şifrelemesi kaç turdan oluşur?,,0.616
+400,evet,cevapsiz_konu_ici,RSA anahtarı kaç bit uzunluğunda olmalıdır?,,0.692
+400,evet,cevapsiz_konu_ici,Diffie-Hellman anahtar değişimi adım adım nasıl yapılır?,,0.676
+800,hayır,dogrudan,Kriptografi nedir?,1,0.629
+800,hayır,dogrudan,Bilgi güvenliğinde gizlilik ne demektir?,1,0.575
+800,hayır,parafraz,Gönderen taraf mesajı gönderdiğini sonradan yok sayamasın diye hangi güvenlik kavramı kullanılır?,3,0.580
+800,hayır,dogrudan,Vigenère'in kitabında ilk kez hangi yöntemden söz edildi?,1,0.638
+800,hayır,parafraz,Sezar'ın kullandığı yöntemde harfler nasıl değiştiriliyordu?,2,0.456
+800,hayır,parafraz,İkinci Dünya Savaşı'nda Almanların kullandığı şifreleme makinesini kim çözdü?,1,0.662
+800,hayır,dogrudan,RSA algoritmasını kimler buldu?,2,0.609
+800,hayır,parafraz,NIST'in simetrik algoritma yarışmasını hangi algoritma kazandı?,1,0.706
+800,hayır,dogrudan,Açık anahtar sistemini anlatan makaleyi kimler yayınladı?,9,0.431
+800,hayır,parafraz,Kriptografi bilgi saklamanın dışında hangi alanlarda kullanılır?,2,0.539
+800,hayır,parafraz,Mükemmel kabul edilen tek kullanımlık şifreleme sistemini kimler tasarladı?,1,0.636
+800,hayır,dogrudan,DES'in temelini oluşturan algoritma hangisidir?,2,0.530
+800,hayır,dogrudan,Dijital imza nedir?,2,0.572
+800,hayır,parafraz,Türk mevzuatında dijital imza hangi adla geçer?,1,0.562
+800,hayır,parafraz,Bir dosyada küçücük bir değişiklik yapılırsa özet değerine ne olur?,2,0.450
+800,hayır,dogrudan,Dijital imzada hash değeri hangi anahtarla şifrelenir?,1,0.782
+800,hayır,parafraz,İmzanın geçerli olduğunu doğrulayan kişi hangi karşılaştırmayı yapar?,3,0.386
+800,hayır,parafraz,Çok büyük bir video dosyasının özet değeri ne kadar uzun olur?,1,0.370
+800,hayır,dogrudan,secp256r1 eğrisi ve sha-256 ile çalışan imza algoritmasının adı nedir?,1,0.741
+800,hayır,parafraz,İmzalı belgenin içeriği değiştirilirse imzaya ne olur?,1,0.458
+800,hayır,dogrudan,Açık anahtarlı kriptografide anahtar çifti nelerden oluşur?,1,0.716
+800,hayır,dogrudan,Gönderici mesajı şifrelemek için hangi anahtarı kullanır?,2,0.572
+800,hayır,parafraz,Şifrelenmiş mesajı kim açabilir?,3,0.543
+800,hayır,parafraz,Açık anahtarlı kriptografi anahtar paylaşımında hangi gereksinimi ortadan kaldırır?,1,0.653
+800,hayır,parafraz,Dijital imzalar hangi güvenlik özelliklerini sağlar?,12,0.536
+800,hayır,parafraz,Açık anahtarlı sistemler büyük ağlarda neden tercih edilir?,1,0.480
+800,hayır,parafraz,Açık ve özel anahtar birbirinden hesaplanabilir mi?,1,0.581
+800,hayır,cevapsiz,Python'da liste nasıl sıralanır?,,0.297
+800,hayır,cevapsiz,Türkiye'nin başkenti neresidir?,,0.297
+800,hayır,cevapsiz,Makine öğrenmesinde aşırı öğrenme nedir?,,0.262
+800,hayır,cevapsiz_konu_ici,AES şifrelemesi kaç turdan oluşur?,,0.570
+800,hayır,cevapsiz_konu_ici,RSA anahtarı kaç bit uzunluğunda olmalıdır?,,0.597
+800,hayır,cevapsiz_konu_ici,Diffie-Hellman anahtar değişimi adım adım nasıl yapılır?,,0.568
+800,evet,dogrudan,Kriptografi nedir?,1,0.744
+800,evet,dogrudan,Bilgi güvenliğinde gizlilik ne demektir?,1,0.683
+800,evet,parafraz,Gönderen taraf mesajı gönderdiğini sonradan yok sayamasın diye hangi güvenlik kavramı kullanılır?,2,0.640
+800,evet,dogrudan,Vigenère'in kitabında ilk kez hangi yöntemden söz edildi?,1,0.782
+800,evet,parafraz,Sezar'ın kullandığı yöntemde harfler nasıl değiştiriliyordu?,3,0.576
+800,evet,parafraz,İkinci Dünya Savaşı'nda Almanların kullandığı şifreleme makinesini kim çözdü?,1,0.735
+800,evet,dogrudan,RSA algoritmasını kimler buldu?,1,0.703
+800,evet,parafraz,NIST'in simetrik algoritma yarışmasını hangi algoritma kazandı?,1,0.756
+800,evet,dogrudan,Açık anahtar sistemini anlatan makaleyi kimler yayınladı?,6,0.637
+800,evet,parafraz,Kriptografi bilgi saklamanın dışında hangi alanlarda kullanılır?,5,0.690
+800,evet,parafraz,Mükemmel kabul edilen tek kullanımlık şifreleme sistemini kimler tasarladı?,1,0.774
+800,evet,dogrudan,DES'in temelini oluşturan algoritma hangisidir?,1,0.651
+800,evet,dogrudan,Dijital imza nedir?,2,0.638
+800,evet,parafraz,Türk mevzuatında dijital imza hangi adla geçer?,1,0.673
+800,evet,parafraz,Bir dosyada küçücük bir değişiklik yapılırsa özet değerine ne olur?,2,0.530
+800,evet,dogrudan,Dijital imzada hash değeri hangi anahtarla şifrelenir?,1,0.826
+800,evet,parafraz,İmzanın geçerli olduğunu doğrulayan kişi hangi karşılaştırmayı yapar?,1,0.506
+800,evet,parafraz,Çok büyük bir video dosyasının özet değeri ne kadar uzun olur?,1,0.502
+800,evet,dogrudan,secp256r1 eğrisi ve sha-256 ile çalışan imza algoritmasının adı nedir?,1,0.721
+800,evet,parafraz,İmzalı belgenin içeriği değiştirilirse imzaya ne olur?,1,0.571
+800,evet,dogrudan,Açık anahtarlı kriptografide anahtar çifti nelerden oluşur?,1,0.808
+800,evet,dogrudan,Gönderici mesajı şifrelemek için hangi anahtarı kullanır?,1,0.694
+800,evet,parafraz,Şifrelenmiş mesajı kim açabilir?,2,0.674
+800,evet,parafraz,Açık anahtarlı kriptografi anahtar paylaşımında hangi gereksinimi ortadan kaldırır?,1,0.782
+800,evet,parafraz,Dijital imzalar hangi güvenlik özelliklerini sağlar?,13,0.667
+800,evet,parafraz,Açık anahtarlı sistemler büyük ağlarda neden tercih edilir?,2,0.635
+800,evet,parafraz,Açık ve özel anahtar birbirinden hesaplanabilir mi?,2,0.725
+800,evet,cevapsiz,Python'da liste nasıl sıralanır?,,0.355
+800,evet,cevapsiz,Türkiye'nin başkenti neresidir?,,0.453
+800,evet,cevapsiz,Makine öğrenmesinde aşırı öğrenme nedir?,,0.383
+800,evet,cevapsiz_konu_ici,AES şifrelemesi kaç turdan oluşur?,,0.597
+800,evet,cevapsiz_konu_ici,RSA anahtarı kaç bit uzunluğunda olmalıdır?,,0.664
+800,evet,cevapsiz_konu_ici,Diffie-Hellman anahtar değişimi adım adım nasıl yapılır?,,0.657
+1200,hayır,dogrudan,Kriptografi nedir?,1,0.637
+1200,hayır,dogrudan,Bilgi güvenliğinde gizlilik ne demektir?,1,0.586
+1200,hayır,parafraz,Gönderen taraf mesajı gönderdiğini sonradan yok sayamasın diye hangi güvenlik kavramı kullanılır?,2,0.514
+1200,hayır,dogrudan,Vigenère'in kitabında ilk kez hangi yöntemden söz edildi?,1,0.649
+1200,hayır,parafraz,Sezar'ın kullandığı yöntemde harfler nasıl değiştiriliyordu?,1,0.469
+1200,hayır,parafraz,İkinci Dünya Savaşı'nda Almanların kullandığı şifreleme makinesini kim çözdü?,1,0.612
+1200,hayır,dogrudan,RSA algoritmasını kimler buldu?,2,0.626
+1200,hayır,parafraz,NIST'in simetrik algoritma yarışmasını hangi algoritma kazandı?,1,0.703
+1200,hayır,dogrudan,Açık anahtar sistemini anlatan makaleyi kimler yayınladı?,9,0.437
+1200,hayır,parafraz,Kriptografi bilgi saklamanın dışında hangi alanlarda kullanılır?,3,0.573
+1200,hayır,parafraz,Mükemmel kabul edilen tek kullanımlık şifreleme sistemini kimler tasarladı?,1,0.634
+1200,hayır,dogrudan,DES'in temelini oluşturan algoritma hangisidir?,2,0.533
+1200,hayır,dogrudan,Dijital imza nedir?,1,0.517
+1200,hayır,parafraz,Türk mevzuatında dijital imza hangi adla geçer?,1,0.492
+1200,hayır,parafraz,Bir dosyada küçücük bir değişiklik yapılırsa özet değerine ne olur?,2,0.407
+1200,hayır,dogrudan,Dijital imzada hash değeri hangi anahtarla şifrelenir?,1,0.732
+1200,hayır,parafraz,İmzanın geçerli olduğunu doğrulayan kişi hangi karşılaştırmayı yapar?,3,0.327
+1200,hayır,parafraz,Çok büyük bir video dosyasının özet değeri ne kadar uzun olur?,2,0.323
+1200,hayır,dogrudan,secp256r1 eğrisi ve sha-256 ile çalışan imza algoritmasının adı nedir?,1,0.739
+1200,hayır,parafraz,İmzalı belgenin içeriği değiştirilirse imzaya ne olur?,1,0.454
+1200,hayır,dogrudan,Açık anahtarlı kriptografide anahtar çifti nelerden oluşur?,1,0.712
+1200,hayır,dogrudan,Gönderici mesajı şifrelemek için hangi anahtarı kullanır?,2,0.563
+1200,hayır,parafraz,Şifrelenmiş mesajı kim açabilir?,3,0.567
+1200,hayır,parafraz,Açık anahtarlı kriptografi anahtar paylaşımında hangi gereksinimi ortadan kaldırır?,1,0.658
+1200,hayır,parafraz,Dijital imzalar hangi güvenlik özelliklerini sağlar?,10,0.488
+1200,hayır,parafraz,Açık anahtarlı sistemler büyük ağlarda neden tercih edilir?,1,0.513
+1200,hayır,parafraz,Açık ve özel anahtar birbirinden hesaplanabilir mi?,2,0.581
+1200,hayır,cevapsiz,Python'da liste nasıl sıralanır?,,0.260
+1200,hayır,cevapsiz,Türkiye'nin başkenti neresidir?,,0.259
+1200,hayır,cevapsiz,Makine öğrenmesinde aşırı öğrenme nedir?,,0.271
+1200,hayır,cevapsiz_konu_ici,AES şifrelemesi kaç turdan oluşur?,,0.596
+1200,hayır,cevapsiz_konu_ici,RSA anahtarı kaç bit uzunluğunda olmalıdır?,,0.567
+1200,hayır,cevapsiz_konu_ici,Diffie-Hellman anahtar değişimi adım adım nasıl yapılır?,,0.556
+1200,evet,dogrudan,Kriptografi nedir?,1,0.750
+1200,evet,dogrudan,Bilgi güvenliğinde gizlilik ne demektir?,1,0.668
+1200,evet,parafraz,Gönderen taraf mesajı gönderdiğini sonradan yok sayamasın diye hangi güvenlik kavramı kullanılır?,1,0.581
+1200,evet,dogrudan,Vigenère'in kitabında ilk kez hangi yöntemden söz edildi?,1,0.796
+1200,evet,parafraz,Sezar'ın kullandığı yöntemde harfler nasıl değiştiriliyordu?,1,0.572
+1200,evet,parafraz,İkinci Dünya Savaşı'nda Almanların kullandığı şifreleme makinesini kim çözdü?,1,0.717
+1200,evet,dogrudan,RSA algoritmasını kimler buldu?,1,0.706
+1200,evet,parafraz,NIST'in simetrik algoritma yarışmasını hangi algoritma kazandı?,1,0.735
+1200,evet,dogrudan,Açık anahtar sistemini anlatan makaleyi kimler yayınladı?,7,0.629
+1200,evet,parafraz,Kriptografi bilgi saklamanın dışında hangi alanlarda kullanılır?,3,0.719
+1200,evet,parafraz,Mükemmel kabul edilen tek kullanımlık şifreleme sistemini kimler tasarladı?,1,0.777
+1200,evet,dogrudan,DES'in temelini oluşturan algoritma hangisidir?,1,0.669
+1200,evet,dogrudan,Dijital imza nedir?,1,0.585
+1200,evet,parafraz,Türk mevzuatında dijital imza hangi adla geçer?,1,0.614
+1200,evet,parafraz,Bir dosyada küçücük bir değişiklik yapılırsa özet değerine ne olur?,1,0.516
+1200,evet,dogrudan,Dijital imzada hash değeri hangi anahtarla şifrelenir?,1,0.778
+1200,evet,parafraz,İmzanın geçerli olduğunu doğrulayan kişi hangi karşılaştırmayı yapar?,2,0.448
+1200,evet,parafraz,Çok büyük bir video dosyasının özet değeri ne kadar uzun olur?,2,0.493
+1200,evet,dogrudan,secp256r1 eğrisi ve sha-256 ile çalışan imza algoritmasının adı nedir?,1,0.712
+1200,evet,parafraz,İmzalı belgenin içeriği değiştirilirse imzaya ne olur?,1,0.537
+1200,evet,dogrudan,Açık anahtarlı kriptografide anahtar çifti nelerden oluşur?,1,0.799
+1200,evet,dogrudan,Gönderici mesajı şifrelemek için hangi anahtarı kullanır?,3,0.732
+1200,evet,parafraz,Şifrelenmiş mesajı kim açabilir?,4,0.664
+1200,evet,parafraz,Açık anahtarlı kriptografi anahtar paylaşımında hangi gereksinimi ortadan kaldırır?,2,0.790
+1200,evet,parafraz,Dijital imzalar hangi güvenlik özelliklerini sağlar?,10,0.629
+1200,evet,parafraz,Açık anahtarlı sistemler büyük ağlarda neden tercih edilir?,1,0.668
+1200,evet,parafraz,Açık ve özel anahtar birbirinden hesaplanabilir mi?,2,0.746
+1200,evet,cevapsiz,Python'da liste nasıl sıralanır?,,0.329
+1200,evet,cevapsiz,Türkiye'nin başkenti neresidir?,,0.408
+1200,evet,cevapsiz,Makine öğrenmesinde aşırı öğrenme nedir?,,0.383
+1200,evet,cevapsiz_konu_ici,AES şifrelemesi kaç turdan oluşur?,,0.611
+1200,evet,cevapsiz_konu_ici,RSA anahtarı kaç bit uzunluğunda olmalıdır?,,0.658
+1200,evet,cevapsiz_konu_ici,Diffie-Hellman anahtar değişimi adım adım nasıl yapılır?,,0.634

@@ -1,0 +1,38 @@
+[
+  {"type": "dogrudan", "question": "Kriptografi nedir?", "snippet": "istenmeyen taraflarca anlaşılamayacak bir hale dönüştürülmesinde"},
+  {"type": "dogrudan", "question": "Bilgi güvenliğinde gizlilik ne demektir?", "snippet": "Bilgiyi görme yetkisi olanlar dışındaki herkesten gizli tutmak"},
+  {"type": "parafraz", "question": "Gönderen taraf mesajı gönderdiğini sonradan yok sayamasın diye hangi güvenlik kavramı kullanılır?", "snippet": "Göndericinin ondan gelen mesajı inkâr edememesi"},
+  {"type": "dogrudan", "question": "Vigenère'in kitabında ilk kez hangi yöntemden söz edildi?", "snippet": "otomatik anahtarlama yönteminden bahsedildi"},
+  {"type": "parafraz", "question": "Sezar'ın kullandığı yöntemde harfler nasıl değiştiriliyordu?", "snippet": "her harfin alfabede kendisinden 3 harf sonraki harfle değiştirilmesine dayanıyordu"},
+  {"type": "parafraz", "question": "İkinci Dünya Savaşı'nda Almanların kullandığı şifreleme makinesini kim çözdü?", "snippet": "Bu makine Alan Turing ve ekibi tarafından çözüldü"},
+  {"type": "dogrudan", "question": "RSA algoritmasını kimler buldu?", "snippet": "Adi Shamir ve Leonard M. Adleman: RSA algoritmasını buldular"},
+  {"type": "parafraz", "question": "NIST'in simetrik algoritma yarışmasını hangi algoritma kazandı?", "snippet": "Rijndael algoritması, AES (Advanced Encryption Standard) adıyla standart haline getirildi"},
+  {"type": "dogrudan", "question": "Açık anahtar sistemini anlatan makaleyi kimler yayınladı?", "snippet": "Whitfield Diffie ve Martin Hellman Açık Anahtar sistemini anlattıkları makaleyi yayınladılar"},
+  {"type": "parafraz", "question": "Kriptografi bilgi saklamanın dışında hangi alanlarda kullanılır?", "snippet": "Elektronik imza, elektronik para ve elektronik seçim"},
+  {"type": "parafraz", "question": "Mükemmel kabul edilen tek kullanımlık şifreleme sistemini kimler tasarladı?", "snippet": "Joseph Mauborgne ve Gilbert Vernam mükemmel şifreleme sistemi"},
+  {"type": "dogrudan", "question": "DES'in temelini oluşturan algoritma hangisidir?", "snippet": "temelini oluşturan Lucifer algoritmasını geliştirdi"},
+
+  {"type": "dogrudan", "question": "Dijital imza nedir?", "snippet": "dijital belgeleri kriptografik olarak imzalama teknolojisinin ismi"},
+  {"type": "parafraz", "question": "Türk mevzuatında dijital imza hangi adla geçer?", "snippet": "güvenli elektronik imza olarak geçen teknoloji"},
+  {"type": "parafraz", "question": "Bir dosyada küçücük bir değişiklik yapılırsa özet değerine ne olur?", "snippet": "içeriği tek bir bit bile değiştirseniz değerin de tamamen değişiyor"},
+  {"type": "dogrudan", "question": "Dijital imzada hash değeri hangi anahtarla şifrelenir?", "snippet": "sonra bu hash değerini özel anahtarla şifreler"},
+  {"type": "parafraz", "question": "İmzanın geçerli olduğunu doğrulayan kişi hangi karşılaştırmayı yapar?", "snippet": "elindeki içerikten kendi çıkardığı hash değeriyle kıyaslayarak"},
+  {"type": "parafraz", "question": "Çok büyük bir video dosyasının özet değeri ne kadar uzun olur?", "snippet": "64 karakter uzunluğunda bi değer"},
+  {"type": "dogrudan", "question": "secp256r1 eğrisi ve sha-256 ile çalışan imza algoritmasının adı nedir?", "snippet": "adı es256"},
+  {"type": "parafraz", "question": "İmzalı belgenin içeriği değiştirilirse imzaya ne olur?", "snippet": "imza geçersiz olacaktı"},
+
+  {"type": "dogrudan", "question": "Açık anahtarlı kriptografide anahtar çifti nelerden oluşur?", "snippet": "serbestçe dağıtılabilen bir açık anahtar"},
+  {"type": "dogrudan", "question": "Gönderici mesajı şifrelemek için hangi anahtarı kullanır?", "snippet": "alıcının açık anahtarını kullanır"},
+  {"type": "parafraz", "question": "Şifrelenmiş mesajı kim açabilir?", "snippet": "yalnızca ilgili özel anahtarla çözülebilir"},
+  {"type": "parafraz", "question": "Açık anahtarlı kriptografi anahtar paylaşımında hangi gereksinimi ortadan kaldırır?", "snippet": "ihtiyacı ortadan kaldırır"},
+  {"type": "parafraz", "question": "Dijital imzalar hangi güvenlik özelliklerini sağlar?", "snippet": "Kimlik doğrulamayı ve reddedilemezliği etkinleştirir"},
+  {"type": "parafraz", "question": "Açık anahtarlı sistemler büyük ağlarda neden tercih edilir?", "snippet": "büyük ağlarda yönetimi daha kolaydır"},
+  {"type": "parafraz", "question": "Açık ve özel anahtar birbirinden hesaplanabilir mi?", "snippet": "birbirlerinden türetilmesi mümkün değildir"},
+
+  {"type": "cevapsiz", "question": "Python'da liste nasıl sıralanır?", "snippet": null},
+  {"type": "cevapsiz", "question": "Türkiye'nin başkenti neresidir?", "snippet": null},
+  {"type": "cevapsiz", "question": "Makine öğrenmesinde aşırı öğrenme nedir?", "snippet": null},
+  {"type": "cevapsiz_konu_ici", "question": "AES şifrelemesi kaç turdan oluşur?", "snippet": null},
+  {"type": "cevapsiz_konu_ici", "question": "RSA anahtarı kaç bit uzunluğunda olmalıdır?", "snippet": null},
+  {"type": "cevapsiz_konu_ici", "question": "Diffie-Hellman anahtar değişimi adım adım nasıl yapılır?", "snippet": null}
+]
